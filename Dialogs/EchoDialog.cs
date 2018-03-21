@@ -50,9 +50,6 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
                 case MessageType.ProductOrder:
                     await context.PostAsync($"The user ordered the product \"{message.Content}\"");
                     break;
-                case MessageType.ProductRemoval:
-                    await context.PostAsync($"The user removed the product {message.Content}");
-                    break;
             }
 
             await RootActions(context);
@@ -74,7 +71,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             await RootActions(context);
             context.Wait(MessageReceivedAsync);
         }
-        
+
         private static async Task RootActions(IDialogContext context)
         {
             await context.PostAsync(

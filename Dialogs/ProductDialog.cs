@@ -6,6 +6,7 @@ using Microsoft.Bot.Connector;
 using ShopBot.Models;
 using ShopBot.Services;
 using SimpleEchoBot;
+using Microsoft.Bot.Builder.FormFlow;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
@@ -30,8 +31,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             switch (message.Text)
             {
                 case "1":
-                    await context.PostAsync("Name of the product you want to order:");
-                    context.Wait(ProductOptionsReceivedAsync);
+                    await ProductQueryFormFlow(context, message);
                     break;
                 case "2":
                     await context.PostAsync("Name of the product you want to remove:");
@@ -40,12 +40,21 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             }
         }
 
-        private async Task ProductOptionsReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+
+        private Task ProductQueryFormFlow(IDialogContext context, IMessageActivity message)
         {
-            var message = await result;
+            return context.Forward(FormDialog.FromForm(ProductQuery.BuildForm), ProductOptionsReceivedAsync,
+                message);
+        }
+
+        private async Task ProductOptionsReceivedAsync(IDialogContext context, IAwaitable<ProductQuery> result)
+        {
+            var query = await result;
             var products = AzureSearch.CreateClient()
                 .WithIndex(AzureSearch.Products)
-                .Find<Product>(message.Text);
+                .Sort(nameof(Product.ListPrice), query.GetSort())
+                .Limit(query.Limit)
+                .Find<Product>(query.ProductName);
 
             if (products.Any())
             {
@@ -54,7 +63,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             else
             {
                 await context.PostAsync("No products found please try with another query.");
-                context.Wait(ProductOptionsReceivedAsync);
+                await ProductQueryFormFlow(context, context.MakeMessage());
             }
         }
 
