@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using System.Threading;
 using SimpleEchoBot;
 using SimpleEchoBot.Dialogs;
+using ShopBot.Models;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
@@ -42,7 +43,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
         private async Task ResumeAfterProductDialog(IDialogContext context, IAwaitable<object> result)
         {
             var messageObject = await result;
-            MessageBag<string> message = (MessageBag<string>)messageObject;
+            MessageBag<Product> message = (MessageBag<Product>)messageObject;
 
             switch (message.Type)
             {
@@ -73,7 +74,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             await RootActions(context);
             context.Wait(MessageReceivedAsync);
         }
-
+        
         private static async Task RootActions(IDialogContext context)
         {
             await context.PostAsync(

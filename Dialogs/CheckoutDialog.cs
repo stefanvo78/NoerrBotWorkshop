@@ -9,7 +9,7 @@ using System.Web;
 namespace SimpleEchoBot.Dialogs
 {
     [Serializable]
-    public class CheckoutDialog: IDialog<object>
+    public class CheckoutDialog : IDialog<object>
     {
         public async Task StartAsync(IDialogContext context)
         {
@@ -30,7 +30,7 @@ namespace SimpleEchoBot.Dialogs
             {
                 case "1":
                     context.Done(MessageBag.Of("User checked out!", MessageType.Checkout));
-                    
+
                     break;
                 case "2":
                     context.Done(MessageBag.Of("User canceled!", MessageType.Checkout));
