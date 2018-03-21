@@ -3,7 +3,8 @@
     public enum MessageType
     {
         ProductOrder,
-        ProductRemoval
+        ProductRemoval,
+        Checkout
     }
 
     public static class MessageBag

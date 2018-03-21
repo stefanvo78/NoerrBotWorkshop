@@ -4,6 +4,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
 using System.Threading;
 using SimpleEchoBot;
+using SimpleEchoBot.Dialogs;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
@@ -18,11 +19,17 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
+
             var message = await result;
 
             if (message.Text.Contains("products"))
             {
                 await context.Forward(new ProductDialog(), ResumeAfterProductDialog, message, CancellationToken.None);
+            }
+
+            else if (message.Text.Contains("checkout"))
+            {
+                await context.Forward(new CheckoutDialog(), ResumeAfterCheckoutDialog, message, CancellationToken.None);
             }
             else
             {
@@ -44,6 +51,22 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
                     break;
                 case MessageType.ProductRemoval:
                     await context.PostAsync($"The user removed the product {message.Content}");
+                    break;
+            }
+
+            await RootActions(context);
+            context.Wait(MessageReceivedAsync);
+        }
+
+        private async Task ResumeAfterCheckoutDialog(IDialogContext context, IAwaitable<object> result)
+        {
+            var messageObject = await result;
+            MessageBag<string> message = (MessageBag<string>)messageObject;
+
+            switch (message.Type)
+            {
+                case MessageType.Checkout:
+                    await context.PostAsync(message.Content);
                     break;
             }
 
