@@ -4,7 +4,8 @@
     {
         ProductOrder,
         ProductRemoval,
-        Checkout
+        Checkout,
+        ProductDialogCancelled
     }
 
     public static class MessageBag

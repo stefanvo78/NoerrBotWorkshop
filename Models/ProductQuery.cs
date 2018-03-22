@@ -4,33 +4,34 @@ using Microsoft.Bot.Builder.FormFlow;
 
 namespace ShopBot.Models
 {
-    public enum Sort
-    {
-        Ascending = 1,
-        Descending
-    }
-
     [Serializable]
     public class ProductQuery
     {
+        [Required]
         public string ProductName { get; set; }
 
-        [Prompt("How do you want to sort? {||}")]
-        public Sort Sort { get; set; }
+        [Required]
+        public string Sort { get; set; }
 
-        [Numeric(1, 60)]
-        public int Limit { get; set; } = 1;
+        [Required]
+        [Range(1, 60)]
+        public int Limit { get; set; }
 
-        public string GetSort()
+        public static ProductQuery Parse(dynamic o)
         {
-            return Sort == Sort.Ascending ? "asc" : "desc";
-        }
-
-        public static IForm<ProductQuery> BuildForm()
-        {
-            return new FormBuilder<ProductQuery>()
-                .Message("Provide the required parameters for your search:")
-                .Build();
+            try
+            {
+                return new ProductQuery
+                {
+                    ProductName = o.ProductName.ToString(),
+                    Sort = o.Sort.ToString(),
+                    Limit = int.Parse(o.Limit.ToString())
+                };
+            }
+            catch
+            {
+                throw new InvalidCastException("ProductQuery could not be read");
+            }
         }
     }
 }
