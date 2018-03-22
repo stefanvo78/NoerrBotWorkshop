@@ -6,39 +6,82 @@ using System.Threading;
 using SimpleEchoBot;
 using SimpleEchoBot.Dialogs;
 using ShopBot.Models;
+using Microsoft.Bot.Builder.Luis;
+using Microsoft.Bot.Builder.Luis.Models;
+using System.Configuration;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
+    //LuisAppId , LuisAPIKey, Domain
+    [LuisModel("11bc201a-b47e-4672-b1cd-f80c36ad27be", "ba9d15d5afc942d899fbeb2fe897979b", domain: "westeurope.api.cognitive.microsoft.com")]
     [Serializable]
-    public class EchoDialog : IDialog<object>
+    public class EchoDialog : LuisDialog<object>
     {
-        public Task StartAsync(IDialogContext context)
+        
+        //public Task StartAsync(IDialogContext context)
+        //{
+        //    context.Wait(MessageReceivedAsync);
+        //    return Task.CompletedTask;
+        //}
+
+
+        [LuisIntent("")]
+        [LuisIntent("None")]
+        [LuisIntent("Help")]
+        public async Task None(IDialogContext context, LuisResult result)
         {
-            context.Wait(MessageReceivedAsync);
-            return Task.CompletedTask;
+            await context.PostAsync("Welcome, how can we help you?");
+            await RootActions(context);
+
+            context.Wait(MessageReceived);
         }
 
-        private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+
+
+        private const string EntityProducts = "Products";
+        private const string EntityBasket = "Basket";
+        private const string EntityCheckout = "Checkout";
+        [LuisIntent("SelectDialog")]
+        public async Task SelectDialog(IDialogContext context, IAwaitable<IMessageActivity> messageActivity, LuisResult result)
         {
-
-            var message = await result;
-
-            if (message.Text.Contains("products"))
+            var message = await messageActivity;
+            EntityRecommendation entityRecommendation;
+            if (result.TryFindEntity(EntityProducts, out entityRecommendation))
             {
                 await context.Forward(new ProductDialog(), ResumeAfterProductDialog, message, CancellationToken.None);
             }
-
-            else if (message.Text.Contains("checkout"))
+            else if (result.TryFindEntity(EntityBasket, out entityRecommendation))
+            {
+                //await context.Forward(new ManageBasketDialog(), ResumeAfterManageBasketDialog, message,
+                //    CancellationToken.None);
+            }
+            else if (result.TryFindEntity(EntityCheckout, out entityRecommendation))
             {
                 await context.Forward(new CheckoutDialog(), ResumeAfterCheckoutDialog, message, CancellationToken.None);
             }
-            else
-            {
-                await context.PostAsync("Welcome, how can we help you?");
-                await RootActions(context);
-                context.Wait(MessageReceivedAsync);
-            }
         }
+
+        //private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
+        //{
+
+        //    var message = await result;
+
+        //    if (message.Text.Contains("products"))
+        //    {
+        //        await context.Forward(new ProductDialog(), ResumeAfterProductDialog, message, CancellationToken.None);
+        //    }
+
+        //    else if (message.Text.Contains("checkout"))
+        //    {
+        //        await context.Forward(new CheckoutDialog(), ResumeAfterCheckoutDialog, message, CancellationToken.None);
+        //    }
+        //    else
+        //    {
+        //        await context.PostAsync("Welcome, how can we help you?");
+        //        await RootActions(context);
+        //        context.Wait(MessageReceivedAsync);
+        //    }
+        //}
 
         private async Task ResumeAfterProductDialog(IDialogContext context, IAwaitable<object> result)
         {
@@ -53,7 +96,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             }
 
             await RootActions(context);
-            context.Wait(MessageReceivedAsync);
+            context.Wait(MessageReceived);
         }
 
         private async Task ResumeAfterCheckoutDialog(IDialogContext context, IAwaitable<object> result)
@@ -69,7 +112,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             }
 
             await RootActions(context);
-            context.Wait(MessageReceivedAsync);
+            context.Wait(MessageReceived);
         }
 
         private static async Task RootActions(IDialogContext context)

@@ -7,9 +7,11 @@ using ShopBot.Models;
 using ShopBot.Services;
 using SimpleEchoBot;
 using Microsoft.Bot.Builder.FormFlow;
+using Microsoft.Bot.Builder.Luis;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
+    
     [Serializable]
     public class ProductDialog : IDialog<MessageBag<Product>>
     {
@@ -23,6 +25,8 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             await context.PostAsync("You have these options: \n\n 1. Order products \n\n 2. Remove products from Basket");
             context.Wait(ActionSelectionReceivedAsync);
         }
+
+        
 
         private async Task ActionSelectionReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         {
