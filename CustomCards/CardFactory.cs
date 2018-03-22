@@ -77,6 +77,67 @@ namespace SimpleEchoBot.CustomCards
             };
         }
 
+        public static AdaptiveCard GetProductsBasketCard(IList<Product> products)
+        {
+            var productCards = new List<AdaptiveElement>
+            {
+                new AdaptiveTextBlock
+                {
+                    Text = $"You have **{products?.Count ?? 0}** products in your Basket."
+                }
+            };
+            productCards.AddRange((products ?? new List<Product>()).Select(TransformToProductCard).ToList<AdaptiveElement>());
+
+            return new AdaptiveCard
+            {
+                Body = new List<AdaptiveElement>
+                {
+                    new AdaptiveContainer
+                    {
+                        Items = productCards
+                    }
+                }
+            };
+        }
+
+        private static AdaptiveColumnSet TransformToProductCard(Product product)
+        {
+            return new AdaptiveColumnSet
+            {
+                Columns = new List<AdaptiveColumn>
+                {
+                    new AdaptiveColumn
+                    {
+                        Width = AdaptiveColumnWidth.Auto,
+                        Items = new List<AdaptiveElement>
+                        {
+                            new AdaptiveImage
+                            {
+                                Url = new Uri ( $"https://robohash.org/bob{product.Name + new Random().Next()}?size=75x75"),
+                                Size = AdaptiveImageSize.Small,
+                                Style = AdaptiveImageStyle.Default
+                            }
+                        }
+                    },
+                    new AdaptiveColumn
+                    {
+                        Items = new List<AdaptiveElement>
+                        {
+                            new AdaptiveTextBlock
+                            {
+                                Text = product.Name
+                            },
+                            new AdaptiveTextBlock
+                            {
+                                Text = $"**${product.ListPrice}**",
+                                Wrap = true
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         private static AdaptiveCard GetProductsSearchCard()
         {
             return new AdaptiveCard

@@ -52,8 +52,8 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             }
             else if (result.TryFindEntity(EntityBasket, out entityRecommendation))
             {
-                //await context.Forward(new ManageBasketDialog(), ResumeAfterManageBasketDialog, message,
-                //    CancellationToken.None);
+                await context.Forward(new ManageBasketDialog(), ResumeAfterManageBasketDialog, message,
+                    CancellationToken.None);
             }
             else if (result.TryFindEntity(EntityCheckout, out entityRecommendation))
             {
@@ -61,6 +61,10 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
             }
         }
 
+        private async Task ResumeAfterManageBasketDialog(IDialogContext context, IAwaitable<object> result)
+        {
+            await RootActions(context);
+        }
         //private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> result)
         //{
 

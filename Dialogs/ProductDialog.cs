@@ -11,6 +11,7 @@ using Microsoft.Bot.Builder.Luis;
 using AdaptiveCards;
 using SimpleEchoBot.CustomCards;
 using System.Threading;
+using SimpleEchoBot.Repository;
 
 namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
 {
@@ -104,6 +105,7 @@ namespace Microsoft.Bot.Sample.SimpleEchoBot.Dialogs
         private async Task ProductSelectionReceivedAsync(IDialogContext context, IAwaitable<Product> result)
         {
             var product = await result;
+            BotStateRepository.AddProductToBasket(context, product);
             context.Done(MessageBag.Of(product, MessageType.ProductOrder));
         }
 
